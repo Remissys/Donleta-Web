@@ -7,6 +7,7 @@
   --white: #ffffff;
   --red: #E40B2F;
   --background: #18181D;
+  --drop-shadow: -2px 2px 4px rgba(0, 0, 0, 0.25);
 
   --radius: 0.625rem;
   --foreground: oklch(0.985 0.001 106.423);
@@ -204,40 +205,60 @@ a {
 
 /* PONTUACAO */
 
+.accordion {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.accordion__trigger {
+  padding: 0 8px;
+  font-size: 16px;
+  height: 40px;
+  align-items: center;
+}
+
+.accordion__content {
+  padding: 8px 4px;
+}
+
+.accordion__card {
+  background-color: #1F1F24E6;
+  border: 0;
+  box-shadow: var(--drop-shadow);
+}
+
 .card {
   width: 150px;
   height: 220px;
   display: flex;
-  padding: 8px;
-  margin: 12px 4px 0;
+  padding: 8px 4px;
+  margin: 4px;
   align-items: center;
   justify-content: center;
   gap: 0;
+  background-color: #2B2B30;
+  border: 0;
 }
 
 .card__title {
   text-align: center;
-  height: 25px;
+  height: 24px;
   font-size: 12px;
-  margin-bottom: 4px;
+  align-items: center;
+  display: flex;
+  font-weight: 400;
 }
 
 .card__content {
   display: flex;
   height: inherit;
   width: 100%;
-  padding: 4px;
   display: flex;
   align-items: center;
   justify-content: center;
 }
-
-.card__content--image {
-  height: auto;
-  width: 100%;
-  /* margin-top: 10px; */
-}
-
 
 .card__content--actions {
   display: flex;
@@ -253,11 +274,32 @@ a {
   justify-content: space-between;
 }
 
+.card__footer--button {
+  border: 0;
+  border-radius: 50px;
+  box-shadow: var(--drop-shadow);
+}
+
+.card__footer--input {
+  text-align: center;
+  width: 56px;
+  border: 0;
+  border-radius: 8px;
+  box-shadow: var(--drop-shadow);
+}
+
+.toggle--group {
+  margin-bottom: 12px;
+}
+
+.toggle--group__items {
+  padding: 4px;
+}
+
+.toggle--group__items:hover {
+  padding: 4px;
+  background-color: #1F1F24E6;
+}
+
 /* RESULTADOS */
 
-/* teste */
-
-.p-teste {
-  margin: 10px;
-  padding: 10px;
-}

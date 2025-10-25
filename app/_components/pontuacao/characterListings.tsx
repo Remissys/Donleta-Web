@@ -133,7 +133,7 @@ export default function CharacterListings() {
 
             if (!char) return prevState
 
-            if (action === 'sub'&& char.score > 0) char.score -= 1 //character score cannot be less than 0
+            if (action === 'sub' && char.score > 0) char.score -= 1 //character score cannot be less than 0
             else if (action === 'add') char.score += 1
             else if (action === 'input' && typeof inputValue === "string" && !isNaN(+inputValue)) char.score = +inputValue //input has to be a number
 
@@ -157,7 +157,7 @@ export default function CharacterListings() {
     useEffect(() => {
         const elements = Object.keys(groupedElements).map(Number)
         setSelectedElements(new Set(elements))
-    }, [groupedElements])
+    }, [])
 
     return (
         <>
@@ -165,6 +165,7 @@ export default function CharacterListings() {
                 type="multiple"
                 value={Array.from(selectedElements).map(String)}
                 onValueChange={(values) => setSelectedElements(new Set(values.map(Number)))}
+                className="toggle--group"
             >
                 {Object.keys(groupedElements).map(elementKey => {
                     const element = Number(elementKey)
@@ -173,52 +174,60 @@ export default function CharacterListings() {
                         <ToggleGroupItem
                             key={`Toggle ${element}`}
                             value={element.toString()}
-                            onClick={() => handleToggleElement(element)}>
-                        {element}</ToggleGroupItem>
+                            onClick={() => handleToggleElement(element)}
+                            className="toggle--group__items data-[state=on]:bg-[#1F1F24E6]"
+                        >{`Element ${element}`}</ToggleGroupItem>
                     )
                 })}
             </ToggleGroup>
-            <Accordion type="multiple" value={Array.from(selectedElements).map(String)}>
+            <Accordion type="multiple" value={Array.from(selectedElements).map(String)} className="accordion">
                 {Object.keys(groupedElements).map(elementKey => {
                     const element = Number(elementKey)
                     const chars = groupedElements[element]
                     
                     return(
                         <>
-                        <AccordionItem key={element} value={element.toString()} className="border-0">
-                            <AccordionTrigger onClick={() => handleToggleElement(element)}>{element}</AccordionTrigger>
-                            <AccordionContent>
-                                <div className="flex flex-wrap justify-start space-x-2">
-                                    {chars.map(char => {
-                                        return (
-                                            <Card className="card" key={`char ${char.id}`}>
-                                                <CardTitle className="card__title">{char.name}</CardTitle>
-                                                <CardContent className="card__content">
-                                                    <Card className="w-[120px] h-[120px] overflow-hidden" style={{backgroundColor: elementHex[char.element].hex}}>
-                                                        <Image src={char.image} alt='' className="card__content--image"/>
-                                                    </Card>
-                                                </CardContent>
-                                                <CardFooter className="card__footer">
-                                                    <Button 
-                                                        variant="outline" 
-                                                        size="icon" 
-                                                        className="rounded-full"
-                                                        onClick={() => setCharScore('sub', char.id)}
-                                                    >-</Button>
-                                                    <Input type="text" placeholder="0" className="text-center w-10" value={char.score} onChange={(e) => {setCharScore('input', char.id, e.target.value)}}/>
-                                                    <Button 
-                                                        variant="outline" 
-                                                        size="icon" 
-                                                        className="rounded-full"
-                                                        onClick={() => setCharScore('add', char.id)}
-                                                    >+</Button>
-                                                </CardFooter>
-                                            </Card>
-                                        )
-                                    })}
-                                </div>
-                            </AccordionContent>
-                        </AccordionItem>
+                        <Card className="accordion__card">
+                            <AccordionItem key={element} value={element.toString()} className="border-0">
+                                <AccordionTrigger
+                                    className="accordion__trigger"
+                                    onClick={() => handleToggleElement(element)}
+                                >{element}</AccordionTrigger>
+                                <AccordionContent className="accordion__content">
+                                    <div className="flex flex-wrap justify-start space-x-2">
+                                        {chars.map(char => {
+                                            return (
+                                                <Card className="card drop-shadow-(--drop-shadow)" key={`char ${char.id}`}>
+                                                    <CardTitle className="card__title">{char.name}</CardTitle>
+                                                    <CardContent className="card__content">
+                                                        <Card className="w-[130px] h-[130px] overflow-hidden border-0 drop-shadow-(--drop-shadow)" style={{backgroundColor: elementHex[char.element].hex}}>
+                                                            <Image src={char.image} alt=''/>
+                                                        </Card>
+                                                    </CardContent>
+                                                    <CardFooter className="card__footer">
+                                                        <Button 
+                                                            variant="outline" 
+                                                            size="icon" 
+                                                            className="card__footer--button"
+                                                            style={{backgroundColor: elementHex[char.element].hex}}
+                                                            onClick={() => setCharScore('sub', char.id)}
+                                                        >-</Button>
+                                                        <Input type="text" placeholder="0" className="card__footer--input" style={{backgroundColor: elementHex[char.element].hex}} value={char.score} onChange={(e) => {setCharScore('input', char.id, e.target.value)}}/>
+                                                        <Button 
+                                                            variant="outline" 
+                                                            size="icon" 
+                                                            className="card__footer--button"
+                                                            style={{backgroundColor: elementHex[char.element].hex}}
+                                                            onClick={() => setCharScore('add', char.id)}
+                                                        >+</Button>
+                                                    </CardFooter>
+                                                </Card>
+                                            )
+                                        })}
+                                    </div>
+                                </AccordionContent>
+                            </AccordionItem>
+                        </Card>
                         </>
                     )
                 })}
