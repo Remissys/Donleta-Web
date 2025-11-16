@@ -17,6 +17,7 @@ import Nahida from "../../../public/Nahida_Icon.png"
 import Sucrose from "../../../public/Sucrose_Icon.png"
 import Yanfei from "../../../public/Yanfei_Icon.png"
 import YunJin from "../../../public/Yun_Jin_Icon.png"
+import AddCharacter from "./addCharacter"
 
 export default function CharacterListings() {
 
@@ -116,6 +117,13 @@ export default function CharacterListings() {
             "score": 3,
             "image": YunJin
         },
+        {
+            "id": 8,
+            "name": "Aino",
+            "element": 1,
+            "score": 2,
+            "image": "https://genshin-impact.fandom.com/wiki/Special:Filepath/Amber_Icon.png"
+        }
     ])
 
     const groupedElements = useMemo(() => {
@@ -161,25 +169,28 @@ export default function CharacterListings() {
 
     return (
         <>
-            <ToggleGroup
-                type="multiple"
-                value={Array.from(selectedElements).map(String)}
-                onValueChange={(values) => setSelectedElements(new Set(values.map(Number)))}
-                className="toggle--group"
-            >
-                {Object.keys(groupedElements).map(elementKey => {
-                    const element = Number(elementKey)
+            <div className="flex justify-between">
+                <ToggleGroup
+                    type="multiple"
+                    value={Array.from(selectedElements).map(String)}
+                    onValueChange={(values) => setSelectedElements(new Set(values.map(Number)))}
+                    className="toggle--group"
+                >
+                    {Object.keys(groupedElements).map(elementKey => {
+                        const element = Number(elementKey)
 
-                    return(
-                        <ToggleGroupItem
-                            key={`Toggle ${element}`}
-                            value={element.toString()}
-                            onClick={() => handleToggleElement(element)}
-                            className="toggle--group__items data-[state=on]:bg-[#1F1F24E6]"
-                        >{`Element ${element}`}</ToggleGroupItem>
-                    )
-                })}
-            </ToggleGroup>
+                        return(
+                            <ToggleGroupItem
+                                key={`Toggle ${element}`}
+                                value={element.toString()}
+                                onClick={() => handleToggleElement(element)}
+                                className="toggle--group__items data-[state=on]:bg-[#1F1F24E6]"
+                            >{`Element ${element}`}</ToggleGroupItem>
+                        )
+                    })}
+                </ToggleGroup>
+                <AddCharacter/>
+            </div>
             <Accordion type="multiple" value={Array.from(selectedElements).map(String)} className="accordion">
                 {Object.keys(groupedElements).map(elementKey => {
                     const element = Number(elementKey)
@@ -197,26 +208,26 @@ export default function CharacterListings() {
                                     <div className="flex flex-wrap justify-start space-x-2">
                                         {chars.map(char => {
                                             return (
-                                                <Card className="card drop-shadow-(--drop-shadow)" key={`char ${char.id}`}>
-                                                    <CardTitle className="card__title">{char.name}</CardTitle>
-                                                    <CardContent className="card__content">
+                                                <Card className="char-card drop-shadow-(--drop-shadow)" key={`char ${char.id}`}>
+                                                    <CardTitle className="char-card__title">{char.name}</CardTitle>
+                                                    <CardContent className="char-card__content">
                                                         <Card className="w-[130px] h-[130px] overflow-hidden border-0 drop-shadow-(--drop-shadow)" style={{backgroundColor: elementHex[char.element].hex}}>
-                                                            <Image src={char.image} alt=''/>
+                                                            <Image src={char.image} alt='' width={130} height={130}/>
                                                         </Card>
                                                     </CardContent>
-                                                    <CardFooter className="card__footer">
+                                                    <CardFooter className="char-card__footer">
                                                         <Button 
                                                             variant="outline" 
                                                             size="icon" 
-                                                            className="card__footer--button"
+                                                            className="char-card__footer--button"
                                                             style={{backgroundColor: elementHex[char.element].hex}}
                                                             onClick={() => setCharScore('sub', char.id)}
                                                         >-</Button>
-                                                        <Input type="text" placeholder="0" className="card__footer--input" style={{backgroundColor: elementHex[char.element].hex}} value={char.score} onChange={(e) => {setCharScore('input', char.id, e.target.value)}}/>
+                                                        <Input type="text" placeholder="0" className="char-card__footer--input" style={{backgroundColor: elementHex[char.element].hex}} value={char.score} onChange={(e) => {setCharScore('input', char.id, e.target.value)}}/>
                                                         <Button 
                                                             variant="outline" 
                                                             size="icon" 
-                                                            className="card__footer--button"
+                                                            className="char-card__footer--button"
                                                             style={{backgroundColor: elementHex[char.element].hex}}
                                                             onClick={() => setCharScore('add', char.id)}
                                                         >+</Button>
