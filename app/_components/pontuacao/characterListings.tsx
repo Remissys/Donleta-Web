@@ -18,6 +18,7 @@ import Sucrose from "../../../public/Sucrose_Icon.png"
 import Yanfei from "../../../public/Yanfei_Icon.png"
 import YunJin from "../../../public/Yun_Jin_Icon.png"
 import AddCharacter from "./addCharacter"
+import { Label } from "@/components/ui/label"
 
 export default function CharacterListings() {
 
@@ -67,7 +68,7 @@ export default function CharacterListings() {
         image: any
     }
 
-    const [charJson, setCharJson] = useState<Char[]>([
+    const charJson:Char[] = [
         {
             "id": 1,
             "name": "Sangonomiya Kokomi",
@@ -124,26 +125,45 @@ export default function CharacterListings() {
             "score": 2,
             "image": "https://genshin-impact.fandom.com/wiki/Special:Filepath/Amber_Icon.png"
         }
-    ])
+    ]
+
+    const [charJsonClone, setCharJsonClone] = useState<Char[]>([...charJson])
+
+    const [modifiedChar, setModifiedChar] = useState<Set<string>>(new Set())
 
     const groupedElements = useMemo(() => {
-        return charJson.reduce<Record<number, Char[]>>((acc, char) => {
+        return charJsonClone.reduce<Record<number, Char[]>>((acc, char) => {
             if (!acc[char.element]) acc[char.element] = []
             acc[char.element].push(char)
             return acc
         }, {} as Record<number, Char[]>)
-    }, [charJson])
+    }, [charJsonClone])
 
     const setCharScore = (action:string|number, charId:number, inputValue:string|null=null) => {
-        setCharJson((prevState) => {
+        setCharJsonClone((prevState) => {
             let updatedCharJson = [...prevState]
             let char = updatedCharJson.find(char => char.id === charId)
+            let charOriginal = charJson.find(char => char.id === charId)
 
-            if (!char) return prevState
+            if (!char || !charOriginal) return prevState
 
-            if (action === 'sub' && char.score > 0) char.score -= 1 //character score cannot be less than 0
-            else if (action === 'add') char.score += 1
-            else if (action === 'input' && typeof inputValue === "string" && !isNaN(+inputValue)) char.score = +inputValue //input has to be a number
+            let hasAlteration = false
+
+            if (action === 'sub' && char.score > 0) {
+                char.score -= 1 //character score cannot be less than 0
+                hasAlteration = true
+            } else if (action === 'add') {
+                char.score += 1
+                hasAlteration = true
+            } else if (action === 'input' && typeof inputValue === "string" && !isNaN(+inputValue)) {
+                char.score = +inputValue //input has to be a number
+                hasAlteration = true
+            }
+
+            if (hasAlteration) {
+                if (char.score !== charOriginal.score) modifiedChar.add(char.name)
+                else if (char.score === charOriginal.score) modifiedChar.delete(char.name)
+            }
 
             return updatedCharJson
         })
@@ -167,6 +187,14 @@ export default function CharacterListings() {
         setSelectedElements(new Set(elements))
     }, [])
 
+    /*
+        For update post
+
+        filter characters to update based on modified characters set
+        ex:
+            charJson.filter(char => modifiedChar.includes(char))
+    */
+
     return (
         <>
             <div className="flex justify-between">
@@ -189,7 +217,17 @@ export default function CharacterListings() {
                         )
                     })}
                 </ToggleGroup>
-                <AddCharacter/>
+                <div className="flex justify-end gap-4">
+                    {modifiedChar.size > 0 ?
+                        <div className="flex gap-4">
+                            <Label className="h-9 text-sm items-center">Você tem alterações não salvas!</Label>
+                            <Button
+                                onClick={() => console.log('salvar')}
+                            >Salvar</Button>
+                        </div>
+                    :<></>}
+                    <AddCharacter/>
+                </div>
             </div>
             <Accordion type="multiple" value={Array.from(selectedElements).map(String)} className="accordion">
                 {Object.keys(groupedElements).map(elementKey => {

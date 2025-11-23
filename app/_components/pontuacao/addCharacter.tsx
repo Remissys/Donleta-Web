@@ -87,7 +87,7 @@ export default function AddCharacter() {
 
     return (
         <Dialog>
-            <DialogTrigger>
+            <DialogTrigger className="bg-primary text-primary-foreground h-9 py-2 px-4 rounded-md font-medium hover:bg-primary/90">
                 Adicionar
             </DialogTrigger>
             <DialogContent className="p-[16px] max-w-[650px] w-[650px]">
@@ -129,7 +129,7 @@ export default function AddCharacter() {
                                                 name={field.name}
                                                 value={field.value?.toString()}
                                                 onValueChange={field.onChange}
-                                                >
+                                            >
                                                 <SelectTrigger
                                                     id='form-element'
                                                     key='form-element'
