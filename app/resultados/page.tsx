@@ -1,7 +1,9 @@
+import SubmitRunsCard from "../_components/resultados/submitRunsCard";
+
 export default function Results() {
     return (
         <div>
-            <h1>Resultados</h1>
+            <SubmitRunsCard/>
         </div>
     )
 }
