@@ -1,6 +1,6 @@
 import CharacterListings from "../_components/pontuacao/characterListings"
 
-export default function Score() {
+export default function CharacterScore() {
 
     //GET Character Data
 

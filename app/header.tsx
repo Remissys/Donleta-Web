@@ -16,7 +16,8 @@ export default function Header() {
                     <div className="nav__menu">
                         <Link href="/" className="nav__menu__options">Tela Inicial</Link>
                         <Link href="/regras" className="nav__menu__options">Regras</Link>
-                        <Link href="/pontuacao" className="nav__menu__options">Pontuações</Link>
+                        <Link href="/personagens" className="nav__menu__options">Personagens</Link>
+                        <Link href="/bosses" className="nav__menu__options">Bosses</Link>
                         <Link href="/resultados" className="nav__menu__options">Resultados</Link>
                     </div>
                 </div>
