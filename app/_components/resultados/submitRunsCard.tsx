@@ -11,6 +11,8 @@ import { Button } from "@/components/ui/button";
 import { XIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
+import { useState, useCallback } from 'react';
+
 export default function SubmitRunsCard() {
 
     const formFields = {
@@ -20,7 +22,14 @@ export default function SubmitRunsCard() {
         'boss': undefined as unknown as number,
         'time': undefined as unknown as number,
         'result': undefined as unknown as number,
-        'score': undefined as unknown as number
+    }
+
+    const defaultScores = {
+        'character1': '',
+        'character2': '',
+        'boss': '',
+        'time': '',
+        'result': ''
     }
 
     const formSchema = z.object({
@@ -39,8 +48,6 @@ export default function SubmitRunsCard() {
                         .coerce.number<number>('Valor inválido!'),
                     'result': z
                         .coerce.number<number>('Valor inválido!'),
-                    'score': z
-                        .coerce.number<number>('Valor inválido!')
                 })
             )
     })
@@ -64,13 +71,85 @@ export default function SubmitRunsCard() {
     const selectTest = [
         {
             value: 1,
-            label: 'Remi'
+            label: 'Remi',
+            score: '3'
         },
         {
             value: 2,
-            label: 'Amber'
+            label: 'Amber',
+            score: 'F'
         }
     ]
+
+    interface Scores {
+        character1: string
+        character2: string
+        boss: string
+        time: string
+        result: string
+    }
+
+    const [scores, setScores] = useState<Map<string, Scores>>(new Map())
+
+    const getOptionScore = useCallback((index:number, id:number, field:string) => {
+        let fieldOptions = []
+
+        if (field === 'boss') fieldOptions = selectTest
+        else if (field === 'time') fieldOptions = selectTest
+        else fieldOptions = selectTest
+
+        const data = fieldOptions.find(option => option.value === Number(id))
+        if (!data) return null
+        return data.score
+    }, [])
+
+    const setFieldScore = useCallback((index:number, id:number, field:string) => {
+        let fieldOptions = []
+
+        if (field === 'boss') fieldOptions = selectTest
+        else if (field === 'time') fieldOptions = selectTest
+        else fieldOptions = selectTest
+
+        const data = fieldOptions.find(option => option.value === Number(id))
+        if (!data) return null
+
+        setScores(prevState => {
+            const newState = new Map(prevState)
+            const scoreValues = newState.get(`runs.${index}`)
+            const scoreObj: Scores = scoreValues ? {...scoreValues} : defaultScores
+            
+            scoreObj[field as keyof Scores] = field === 'result' ? String(id) : data.score
+            newState.set(`runs.${index}`, scoreObj)
+
+            return newState
+        })
+
+        return data.score
+    }, [])
+
+    const updateScore = useCallback((index:number) => {
+        let fieldScores = scores.get(`runs.${index}`)
+
+        if (!fieldScores) return '0'
+
+        let score = 0
+
+        for (const [key, value] of Object.entries(fieldScores)) {
+            if (key === 'result' && value === '1') {
+                score = 0
+                break
+            }
+
+            if (!isNaN(Number(value))) {
+                score += Number(value)
+            } else {
+                score = 0 
+                break
+            }
+        }
+
+        return score
+    }, [scores])
 
     return (
         <Card className="py-6">
@@ -78,20 +157,19 @@ export default function SubmitRunsCard() {
                 <CardTitle>Resultados do Dia</CardTitle>
             </CardHeader>
             <CardContent className="px-6">
-                <form id="add-runs" onSubmit={form.handleSubmit(onSubmitDailyRuns)} onChange={() => console.log(form.watch())}>
+                <form id="add-runs" onSubmit={form.handleSubmit(onSubmitDailyRuns)}>
                     <FieldGroup>
                         {fields.map((field, index) => {
-                            console.log(field) 
                             return(
                                 <FieldSet key={field.id}>
                                     <FieldGroup>
-                                        <div className="flex flex-row gap-2 justify-between">
+                                        <div className="inline-flex flex-wrap gap-5">
                                             <Controller
                                                 key={`runs.${index}.participant.controller`}
                                                 name={`runs.${index}.participant`}
                                                 control={form.control}
                                                 render={({field, fieldState}) => (
-                                                    <Field data-invalid={fieldState.invalid} className="min-w-32 max-w-52">
+                                                    <Field data-invalid={fieldState.invalid} className="min-w-32 max-w-48">
                                                         <Label>Participante</Label>
                                                         <Select
                                                             name={field.name}
@@ -122,12 +200,12 @@ export default function SubmitRunsCard() {
                                                 name={`runs.${index}.character1`}
                                                 control={form.control}
                                                 render={({field, fieldState}) => (
-                                                    <Field data-invalid={fieldState.invalid} className="min-w-32 max-w-52">
+                                                    <Field data-invalid={fieldState.invalid} className="min-w-32 max-w-48">
                                                         <Label>Persoangem 1</Label>
                                                         <Select
                                                             name={field.name}
                                                             value={field.value?.toString()}
-                                                            onValueChange={field.onChange}
+                                                            onValueChange={val => {field.onChange(val), setFieldScore(index, Number(val), 'character1')}}
                                                         >
                                                             <SelectTrigger
                                                                 id={`runs.${index}.character1`}
@@ -135,9 +213,9 @@ export default function SubmitRunsCard() {
                                                                 aria-invalid={fieldState.invalid}
                                                                 onBlur={field.onBlur}
                                                             >
-                                                                <div className="flex w-full justify-between items-center overflow-hidden">
-                                                                    <SelectValue placeholder="Amber"/>
-                                                                    {field.value && <Badge className="h-5 w-5 tabular-nums">0</Badge>}
+                                                                <div className="flex w-full justify-between overflow-hidden gap-2">
+                                                                    <span className="overflow-hidden"><SelectValue placeholder="Amber"/></span>
+                                                                    {field.value && <Badge className="h-5 w-5 tabular-nums">{getOptionScore(index, field.value, 'character1')}</Badge>}
                                                                 </div>
                                                             </SelectTrigger>
                                                             <SelectContent>
@@ -158,12 +236,12 @@ export default function SubmitRunsCard() {
                                                 name={`runs.${index}.character2`}
                                                 control={form.control}
                                                 render={({field, fieldState}) => (
-                                                    <Field data-invalid={fieldState.invalid} className="min-w-32 max-w-52">
+                                                    <Field data-invalid={fieldState.invalid} className="min-w-32 max-w-48">
                                                         <Label>Persoangem 2</Label>
                                                         <Select
                                                             name={field.name}
                                                             value={field.value?.toString()}
-                                                            onValueChange={field.onChange}
+                                                            onValueChange={val => {field.onChange(val), setFieldScore(index, Number(val), 'character2')}}
                                                         >
                                                             <SelectTrigger
                                                                 id={`runs.${index}.character2`}
@@ -171,9 +249,9 @@ export default function SubmitRunsCard() {
                                                                 aria-invalid={fieldState.invalid}
                                                                 onBlur={field.onBlur}
                                                             >
-                                                                <div className="flex w-full justify-between items-center overflow-hidden">
-                                                                    <SelectValue placeholder="Sangonomia Kokomi"/>
-                                                                    {field.value && <Badge className="h-5 w-5 tabular-nums">0</Badge>} {/* como fazer verificação de pontuação por boneco? */}
+                                                                <div className="flex w-full justify-between overflow-hidden gap-2">
+                                                                    <span className="overflow-hidden"><SelectValue placeholder="Sangonomia Kokomi"/></span>
+                                                                    {field.value && <Badge className="h-5 w-5 tabular-nums">{getOptionScore(index, field.value, 'character2')}</Badge>}
                                                                 </div>
                                                             </SelectTrigger>
                                                             <SelectContent>
@@ -194,12 +272,12 @@ export default function SubmitRunsCard() {
                                                 name={`runs.${index}.boss`}
                                                 control={form.control}
                                                 render={({field, fieldState}) => (
-                                                    <Field data-invalid={fieldState.invalid} className="min-w-32 max-w-52">
+                                                    <Field data-invalid={fieldState.invalid} className="min-w-32 max-w-48">
                                                         <Label>Boss</Label>
                                                         <Select
                                                             name={field.name}
                                                             value={field.value?.toString()}
-                                                            onValueChange={field.onChange}
+                                                            onValueChange={val => {field.onChange(val), setFieldScore(index, Number(val), 'boss')}}
                                                         >
                                                             <SelectTrigger
                                                                 id={`runs.${index}.boss`}
@@ -207,9 +285,9 @@ export default function SubmitRunsCard() {
                                                                 aria-invalid={fieldState.invalid}
                                                                 onBlur={field.onBlur}
                                                             >
-                                                                <div className="flex w-full justify-between items-center overflow-hidden">
-                                                                    <SelectValue placeholder="Dragarto Primordial"/>
-                                                                    {field.value && <Badge className="h-5 w-5 tabular-nums">0</Badge>}
+                                                                <div className="flex w-full justify-between overflow-hidden gap-2">
+                                                                    <span className="overflow-hidden"><SelectValue placeholder="Dragarto Primordial"/></span>
+                                                                    {field.value && <Badge className="h-5 w-5 tabular-nums">{getOptionScore(index, field.value, 'boss')}</Badge>}
                                                                 </div>
                                                             </SelectTrigger>
                                                             <SelectContent>
@@ -230,12 +308,12 @@ export default function SubmitRunsCard() {
                                                 name={`runs.${index}.time`}
                                                 control={form.control}
                                                 render={({field, fieldState}) => (
-                                                    <Field data-invalid={fieldState.invalid} className="min-w-32 max-w-52">
+                                                    <Field data-invalid={fieldState.invalid} className="min-w-32 max-w-48">
                                                         <Label>Tempo</Label>
                                                         <Select
                                                             name={field.name}
                                                             value={field.value?.toString()}
-                                                            onValueChange={field.onChange}
+                                                            onValueChange={val => {field.onChange(val), setFieldScore(index, Number(val), 'time')}}
                                                         >
                                                             <SelectTrigger
                                                                 id={`runs.${index}.time`}
@@ -243,9 +321,9 @@ export default function SubmitRunsCard() {
                                                                 aria-invalid={fieldState.invalid}
                                                                 onBlur={field.onBlur}
                                                             >
-                                                                <div className="flex w-full justify-between items-center overflow-hidden">
-                                                                    <SelectValue placeholder="Entre 0:00 e 2:00"/>
-                                                                    {field.value && <Badge className="h-5 w-5 tabular-nums">0</Badge>}
+                                                                <div className="flex w-full justify-between overflow-hidden gap-2">
+                                                                    <span className="overflow-hidden"><SelectValue placeholder="Entre 0:00 e 2:00"/></span>
+                                                                    {field.value && <Badge className="h-5 w-5 tabular-nums">{getOptionScore(index, field.value, 'time')}</Badge>}
                                                                 </div>
                                                             </SelectTrigger>
                                                             <SelectContent>
@@ -266,32 +344,27 @@ export default function SubmitRunsCard() {
                                                 name={`runs.${index}.result`}
                                                 control={form.control}
                                                 render={({field, fieldState}) => (
-                                                    <Field data-invalid={fieldState.invalid} className="min-w-32 max-w-52">
+                                                    <Field data-invalid={fieldState.invalid} className="min-w-32 max-w-48">
                                                         <Label>Resultado</Label>
                                                         <Select
                                                             name={field.name}
                                                             value={field.value?.toString()}
-                                                            onValueChange={field.onChange}
+                                                            onValueChange={val => {field.onChange(val), setFieldScore(index, Number(val), 'result')}}
                                                         >
                                                             <SelectTrigger
                                                                 id={`runs.${index}.result`}
                                                                 key={`runs.${index}.result`}
                                                                 aria-invalid={fieldState.invalid}
                                                                 onBlur={field.onBlur}
-                                                            >
-                                                                <div className="flex w-full justify-between overflow-hidden gap-2">
-                                                                    <span className="overflow-hidden"><SelectValue placeholder="Vitória"/></span> {/*Repetir nos outros campos */}
-                                                                    {field.value && <Badge className="h-5 w-5 tabular-nums">0</Badge>}
-                                                                </div>
-                                                            </SelectTrigger>
+                                                            ><SelectValue placeholder="Vitória"/></SelectTrigger>
                                                             <SelectContent>
                                                                 <SelectItem
-                                                                    key={"defeat"}
-                                                                    value="0"
-                                                                >Derrrrrota</SelectItem>
-                                                                <SelectItem
-                                                                    key={"victory"}
+                                                                    key={1}
                                                                     value="1"
+                                                                >Derrota</SelectItem>
+                                                                <SelectItem
+                                                                    key={2}
+                                                                    value="2"
                                                                 >Vitória</SelectItem>
                                                             </SelectContent>
                                                         </Select>
@@ -299,30 +372,18 @@ export default function SubmitRunsCard() {
                                                     </Field>
                                                 )}
                                             />
-                                            <Controller
-                                                key={`runs.${index}.score.controller`}
-                                                name={`runs.${index}.score`}
-                                                control={form.control}
-                                                render={({field, fieldState}) => (
-                                                    <Field data-invalid={fieldState.invalid} className="min-w-32 max-w-52">
-                                                        <Label>Prontuação</Label>
-                                                        <Label
-                                                            {...field}
-                                                            id={`runs.${index}.score`}
-                                                            key={`runs.${index}.score`}
-                                                            aria-invalid={fieldState.invalid}
-                                                            className="border-input aria-invalid:border-destructive border h-9 text-sm rounded-md px-3 py-2"
-                                                        >{field.value}0</Label>
-                                                        {fieldState.invalid && <FieldError errors={[fieldState.error]}/>}
-                                                    </Field>
-                                                )}
-                                            />
+                                            <div className="flex flex-col gap-3 w-full min-w-32 max-w-48">
+                                                <Label>Prontuação</Label>
+                                                <Label 
+                                                    className="border-input aria-invalid:border-destructive border h-9 text-sm rounded-md px-3 py-2 text-center"
+                                                >{updateScore(index)}</Label>
+                                            </div>
                                             <div className="h-[76px] py-6.5">
                                                 <Button
                                                     variant="outline"
                                                     size="icon"
                                                     className="rounded-full mt-10"
-                                                    onClick={() => remove(index)}
+                                                    onClick={() => {remove(index), scores.delete(`runs.${index}`)}}
                                                 ><XIcon/></Button>
                                             </div>
                                         </div>
@@ -340,7 +401,7 @@ export default function SubmitRunsCard() {
                 <div className="flex w-full justify-end">
                     <Button
                         variant="ghost"
-                        onClick={() => form.reset()}
+                        onClick={() => {form.reset(), scores.clear()}}
                     >Cancelar</Button>
                     <Button
                         type="submit"
