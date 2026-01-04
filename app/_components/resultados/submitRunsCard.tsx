@@ -12,6 +12,7 @@ import { XIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 import { useState, useCallback } from 'react';
+import RunPeriodSelector from './runsPeriodSelection';
 
 export default function SubmitRunsCard() {
 
@@ -33,6 +34,11 @@ export default function SubmitRunsCard() {
     }
 
     const formSchema = z.object({
+        'date': z.
+            object({
+                'edition': z.iso.date(),
+                'week': z.number()
+            }),
         'runs': z.
             array(
                 z.object({
@@ -55,6 +61,10 @@ export default function SubmitRunsCard() {
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
+            'date': {
+                'edition': undefined,
+                'week': undefined
+            },
             'runs': [formFields]
         }
     })
@@ -111,6 +121,7 @@ export default function SubmitRunsCard() {
         else fieldOptions = selectTest
 
         const data = fieldOptions.find(option => option.value === Number(id))
+
         if (!data) return null
 
         setScores(prevState => {
@@ -158,6 +169,17 @@ export default function SubmitRunsCard() {
             </CardHeader>
             <CardContent className="px-6">
                 <form id="add-runs" onSubmit={form.handleSubmit(onSubmitDailyRuns)}>
+                    <Controller
+                        control={form.control}
+                        name='date'
+                        render={({field, fieldState}) => (
+                            <RunPeriodSelector
+                                field={field}
+                                fieldState={fieldState}
+                                setValues={setValues}
+                            />
+                        )}
+                    />
                     <FieldGroup>
                         {fields.map((field, index) => {
                             return(
