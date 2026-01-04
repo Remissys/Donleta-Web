@@ -69,8 +69,8 @@ export default function RunPeriodSelector({}: PeriodSelector) {
         <div className="flex gap-4">
             <Select
                 name="edition"
-                value={}
-                onValueChange={}
+                value={'temp'}
+                onValueChange={() => console.log('oi')}
             >
                 <SelectTrigger
                 ><SelectValue placeholder="Edição"/></SelectTrigger>

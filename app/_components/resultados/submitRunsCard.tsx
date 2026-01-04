@@ -173,11 +173,12 @@ export default function SubmitRunsCard() {
                         control={form.control}
                         name='date'
                         render={({field, fieldState}) => (
-                            <RunPeriodSelector
-                                field={field}
-                                fieldState={fieldState}
-                                setValues={setValues}
-                            />
+                            // <RunPeriodSelector
+                            //     field={field}
+                            //     fieldState={fieldState}
+                            //     setValues={setValues}
+                            // />
+                            <span>temp</span>
                         )}
                     />
                     <FieldGroup>
