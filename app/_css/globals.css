@@ -205,6 +205,13 @@ a {
 
 /* PONTUACAO */
 
+.actions {
+  display: flex;
+  justify-content: end;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+
 .accordion {
   display: flex;
   flex-direction: column;
@@ -228,7 +235,7 @@ a {
   box-shadow: var(--drop-shadow);
 }
 
-.char-card {
+.card {
   width: 150px;
   height: 220px;
   display: flex;
@@ -241,7 +248,7 @@ a {
   border: 0;
 }
 
-.char-card__title {
+.card__title {
   text-align: center;
   height: 24px;
   font-size: 12px;
@@ -250,7 +257,7 @@ a {
   font-weight: 400;
 }
 
-.char-card__content {
+.card__content {
   display: flex;
   height: inherit;
   width: 100%;
@@ -259,27 +266,27 @@ a {
   justify-content: center;
 }
 
-.char-card__content--actions {
+.card__content--actions {
   display: flex;
   height: 50px;
   align-items: center;
   justify-content:space-around;
 }
 
-.char-card__footer {
+.card__footer {
   width: 100%;
   padding: 0 4px;
   display: flex;
   justify-content: space-between;
 }
 
-.char-card__footer--button {
+.card__footer--button {
   border: 0;
   border-radius: 50px;
   box-shadow: var(--drop-shadow);
 }
 
-.char-card__footer--input {
+.card__footer--input {
   text-align: center;
   width: 56px;
   border: 0;

@@ -1,4 +1,4 @@
-import CharacterListings from "../_components/pontuacao/characterListings"
+import BossListings from "../_components/pontuacao/bossListings"
 
 export default function BossScore() {
 
@@ -8,7 +8,7 @@ export default function BossScore() {
 
     return (
         <div>
-            <CharacterListings/>
+            <BossListings/>
         </div>
     )
 }

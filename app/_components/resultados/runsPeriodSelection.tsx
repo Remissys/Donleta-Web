@@ -3,11 +3,11 @@
 import { Select, SelectContent, SelectTrigger, SelectItem, SelectValue } from "@/components/ui/select"
 import React, { useEffect, useState } from "react"
 
-interface PeriodSelector {
+// interface PeriodSelector {
 
-}
+// }
 
-export default function RunPeriodSelector({}: PeriodSelector) {
+export default function RunPeriodSelector() {
 
     interface EditionOptions {
         value: Date

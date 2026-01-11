@@ -139,7 +139,7 @@ export default function SubmitRunsCard() {
     }, [])
 
     const updateScore = useCallback((index:number) => {
-        let fieldScores = scores.get(`runs.${index}`)
+        const fieldScores = scores.get(`runs.${index}`)
 
         if (!fieldScores) return '0'
 
@@ -173,12 +173,11 @@ export default function SubmitRunsCard() {
                         control={form.control}
                         name='date'
                         render={({field, fieldState}) => (
-                            // <RunPeriodSelector
-                            //     field={field}
-                            //     fieldState={fieldState}
-                            //     setValues={setValues}
-                            // />
-                            <span>temp</span>
+                            <RunPeriodSelector
+                                // field={field}
+                                // fieldState={fieldState}
+                                // setValues={setValues}
+                            />
                         )}
                     />
                     <FieldGroup>

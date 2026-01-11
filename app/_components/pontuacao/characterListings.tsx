@@ -127,9 +127,9 @@ export default function CharacterListings() {
         }
     ]
 
-    const [charJsonClone, setCharJsonClone] = useState<Char[]>([...charJson])
+    const [ charJsonClone, setCharJsonClone] = useState<Char[]>(structuredClone(charJson))
 
-    const [modifiedChar, setModifiedChar] = useState<Set<string>>(new Set())
+    const [ modifiedChar ] = useState<Set<string>>(new Set())
 
     const groupedElements = useMemo(() => {
         return charJsonClone.reduce<Record<number, Char[]>>((acc, char) => {
@@ -141,9 +141,9 @@ export default function CharacterListings() {
 
     const setCharScore = (action:string|number, charId:number, inputValue:string|null=null) => {
         setCharJsonClone((prevState) => {
-            let updatedCharJson = [...prevState]
+            const updatedCharJson = [...prevState]
             let char = updatedCharJson.find(char => char.id === charId)
-            let charOriginal = charJson.find(char => char.id === charId)
+            const charOriginal = charJson.find(char => char.id === charId)
 
             if (!char || !charOriginal) return prevState
 
@@ -185,7 +185,7 @@ export default function CharacterListings() {
     useEffect(() => {
         const elements = Object.keys(groupedElements).map(Number)
         setSelectedElements(new Set(elements))
-    }, [])
+    }, [groupedElements])
 
     /*
         For update post
@@ -246,26 +246,26 @@ export default function CharacterListings() {
                                     <div className="flex flex-wrap justify-start space-x-2">
                                         {chars.map(char => {
                                             return (
-                                                <Card className="char-card drop-shadow-(--drop-shadow)" key={`char ${char.id}`}>
-                                                    <CardTitle className="char-card__title">{char.name}</CardTitle>
-                                                    <CardContent className="char-card__content">
+                                                <Card className="card drop-shadow-(--drop-shadow)" key={`char ${char.id}`}>
+                                                    <CardTitle className="card__title">{char.name}</CardTitle>
+                                                    <CardContent className="card__content">
                                                         <Card className="w-[130px] h-[130px] overflow-hidden border-0 drop-shadow-(--drop-shadow)" style={{backgroundColor: elementHex[char.element].hex}}>
                                                             <Image src={char.image} alt='' width={130} height={130}/>
                                                         </Card>
                                                     </CardContent>
-                                                    <CardFooter className="char-card__footer">
+                                                    <CardFooter className="card__footer">
                                                         <Button 
                                                             variant="outline" 
                                                             size="icon" 
-                                                            className="char-card__footer--button"
+                                                            className="card__footer--button"
                                                             style={{backgroundColor: elementHex[char.element].hex}}
                                                             onClick={() => setCharScore('sub', char.id)}
                                                         >-</Button>
-                                                        <Input type="text" placeholder="0" className="char-card__footer--input" style={{backgroundColor: elementHex[char.element].hex}} value={char.score} onChange={(e) => {setCharScore('input', char.id, e.target.value)}}/>
+                                                        <Input type="text" placeholder="0" className="card__footer--input" style={{backgroundColor: elementHex[char.element].hex}} value={char.score} onChange={(e) => {setCharScore('input', char.id, e.target.value)}}/>
                                                         <Button 
                                                             variant="outline" 
                                                             size="icon" 
-                                                            className="char-card__footer--button"
+                                                            className="card__footer--button"
                                                             style={{backgroundColor: elementHex[char.element].hex}}
                                                             onClick={() => setCharScore('add', char.id)}
                                                         >+</Button>
