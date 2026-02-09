@@ -17,12 +17,12 @@ import RunPeriodSelector from './runsPeriodSelection';
 export default function SubmitRunsCard() {
 
     const formFields = {
-        'participant': undefined as unknown as number,
-        'character1': undefined as unknown as number,
-        'character2': undefined as unknown as number,
-        'boss': undefined as unknown as number,
-        'time': undefined as unknown as number,
-        'result': undefined as unknown as number,
+        'participant': undefined as unknown as string,
+        'character1': undefined as unknown as string,
+        'character2': undefined as unknown as string,
+        'boss': undefined as unknown as string,
+        'time': undefined as unknown as string,
+        'victory': undefined as unknown as string,
     }
 
     const defaultScores = {
@@ -30,30 +30,25 @@ export default function SubmitRunsCard() {
         'character2': '',
         'boss': '',
         'time': '',
-        'result': ''
+        'victory': ''
     }
 
     const formSchema = z.object({
         'date': z.
             object({
-                'edition': z.iso.date(),
-                'week': z.number()
+                'edition': z.string(),
+                'week': z.string(),
+                'period': z.string(),
             }),
         'runs': z.
             array(
                 z.object({
-                    'participant': z
-                        .coerce.number<number>('Valor inválido!'),
-                    'character1': z
-                        .coerce.number<number>('Valor inválido!'),
-                    'character2': z
-                        .coerce.number<number>('Valor inválido!'),
-                    'boss': z
-                        .coerce.number<number>('Valor inválido!'),
-                    'time': z
-                        .coerce.number<number>('Valor inválido!'),
-                    'result': z
-                        .coerce.number<number>('Valor inválido!'),
+                    'participant': z.string('Valor inválido!'),
+                    'character1': z.string('Valor inválido!'),
+                    'character2': z.string('Valor inválido!'),
+                    'boss': z.string('Valor inválido!'),
+                    'time': z.string('Valor inválido!'),
+                    'victory': z.string('Valor inválido!'),
                 })
             )
     })
@@ -62,8 +57,9 @@ export default function SubmitRunsCard() {
         resolver: zodResolver(formSchema),
         defaultValues: {
             'date': {
-                'edition': undefined,
-                'week': undefined
+                'edition': "",
+                'week': "",
+                'period': ""
             },
             'runs': [formFields]
         }
@@ -80,14 +76,14 @@ export default function SubmitRunsCard() {
 
     const selectTest = [
         {
-            value: 1,
+            value: '1',
             label: 'Remi',
-            score: '3'
+            score: 'F'
         },
         {
-            value: 2,
+            value: '2',
             label: 'Amber',
-            score: 'F'
+            score: '3'
         }
     ]
 
@@ -96,31 +92,31 @@ export default function SubmitRunsCard() {
         character2: string
         boss: string
         time: string
-        result: string
+        victory: string
     }
 
     const [scores, setScores] = useState<Map<string, Scores>>(new Map())
 
-    const getOptionScore = useCallback((index:number, id:number, field:string) => {
+    const getOptionScore = useCallback((index:number, id:string, field:string) => {
         let fieldOptions = []
 
         if (field === 'boss') fieldOptions = selectTest
         else if (field === 'time') fieldOptions = selectTest
         else fieldOptions = selectTest
 
-        const data = fieldOptions.find(option => option.value === Number(id))
+        const data = fieldOptions.find(option => option.value === id)
         if (!data) return null
         return data.score
     }, [])
 
-    const setFieldScore = useCallback((index:number, id:number, field:string) => {
+    const setFieldScore = useCallback((index:number, id:string, field:string) => {
         let fieldOptions = []
 
         if (field === 'boss') fieldOptions = selectTest
         else if (field === 'time') fieldOptions = selectTest
         else fieldOptions = selectTest
 
-        const data = fieldOptions.find(option => option.value === Number(id))
+        const data = fieldOptions.find(option => option.value === id)
 
         if (!data) return null
 
@@ -129,7 +125,7 @@ export default function SubmitRunsCard() {
             const scoreValues = newState.get(`runs.${index}`)
             const scoreObj: Scores = scoreValues ? {...scoreValues} : defaultScores
             
-            scoreObj[field as keyof Scores] = field === 'result' ? String(id) : data.score
+            scoreObj[field as keyof Scores] = field === 'victory' ? id : data.score
             newState.set(`runs.${index}`, scoreObj)
 
             return newState
@@ -146,7 +142,7 @@ export default function SubmitRunsCard() {
         let score = 0
 
         for (const [key, value] of Object.entries(fieldScores)) {
-            if (key === 'result' && value === '1') {
+            if (key === 'victory' && value === '1') {
                 score = 0
                 break
             }
@@ -174,9 +170,9 @@ export default function SubmitRunsCard() {
                         name='date'
                         render={({field, fieldState}) => (
                             <RunPeriodSelector
-                                // field={field}
-                                // fieldState={fieldState}
-                                // setValues={setValues}
+                                field={field}
+                                fieldState={fieldState}
+                                getValues={form.getValues}
                             />
                         )}
                     />
@@ -185,13 +181,13 @@ export default function SubmitRunsCard() {
                             return(
                                 <FieldSet key={field.id}>
                                     <FieldGroup>
-                                        <div className="inline-flex flex-wrap gap-5">
+                                        <div className="grid 2xl:grid-cols-8 md:grid-cols-4 sm:grid-cols-3 gap-5">
                                             <Controller
                                                 key={`runs.${index}.participant.controller`}
                                                 name={`runs.${index}.participant`}
                                                 control={form.control}
                                                 render={({field, fieldState}) => (
-                                                    <Field data-invalid={fieldState.invalid} className="min-w-32 max-w-48">
+                                                    <Field data-invalid={fieldState.invalid} >
                                                         <Label>Participante</Label>
                                                         <Select
                                                             name={field.name}
@@ -222,12 +218,12 @@ export default function SubmitRunsCard() {
                                                 name={`runs.${index}.character1`}
                                                 control={form.control}
                                                 render={({field, fieldState}) => (
-                                                    <Field data-invalid={fieldState.invalid} className="min-w-32 max-w-48">
+                                                    <Field data-invalid={fieldState.invalid} >
                                                         <Label>Persoangem 1</Label>
                                                         <Select
                                                             name={field.name}
                                                             value={field.value?.toString()}
-                                                            onValueChange={val => {field.onChange(val), setFieldScore(index, Number(val), 'character1')}}
+                                                            onValueChange={val => {field.onChange(val), setFieldScore(index, val, 'character1')}}
                                                         >
                                                             <SelectTrigger
                                                                 id={`runs.${index}.character1`}
@@ -258,12 +254,12 @@ export default function SubmitRunsCard() {
                                                 name={`runs.${index}.character2`}
                                                 control={form.control}
                                                 render={({field, fieldState}) => (
-                                                    <Field data-invalid={fieldState.invalid} className="min-w-32 max-w-48">
+                                                    <Field data-invalid={fieldState.invalid} >
                                                         <Label>Persoangem 2</Label>
                                                         <Select
                                                             name={field.name}
                                                             value={field.value?.toString()}
-                                                            onValueChange={val => {field.onChange(val), setFieldScore(index, Number(val), 'character2')}}
+                                                            onValueChange={val => {field.onChange(val), setFieldScore(index, val, 'character2')}}
                                                         >
                                                             <SelectTrigger
                                                                 id={`runs.${index}.character2`}
@@ -294,12 +290,12 @@ export default function SubmitRunsCard() {
                                                 name={`runs.${index}.boss`}
                                                 control={form.control}
                                                 render={({field, fieldState}) => (
-                                                    <Field data-invalid={fieldState.invalid} className="min-w-32 max-w-48">
+                                                    <Field data-invalid={fieldState.invalid} >
                                                         <Label>Boss</Label>
                                                         <Select
                                                             name={field.name}
                                                             value={field.value?.toString()}
-                                                            onValueChange={val => {field.onChange(val), setFieldScore(index, Number(val), 'boss')}}
+                                                            onValueChange={val => {field.onChange(val), setFieldScore(index, val, 'boss')}}
                                                         >
                                                             <SelectTrigger
                                                                 id={`runs.${index}.boss`}
@@ -330,12 +326,12 @@ export default function SubmitRunsCard() {
                                                 name={`runs.${index}.time`}
                                                 control={form.control}
                                                 render={({field, fieldState}) => (
-                                                    <Field data-invalid={fieldState.invalid} className="min-w-32 max-w-48">
+                                                    <Field data-invalid={fieldState.invalid} >
                                                         <Label>Tempo</Label>
                                                         <Select
                                                             name={field.name}
                                                             value={field.value?.toString()}
-                                                            onValueChange={val => {field.onChange(val), setFieldScore(index, Number(val), 'time')}}
+                                                            onValueChange={val => {field.onChange(val), setFieldScore(index, val, 'time')}}
                                                         >
                                                             <SelectTrigger
                                                                 id={`runs.${index}.time`}
@@ -362,31 +358,31 @@ export default function SubmitRunsCard() {
                                                 )}
                                             />
                                             <Controller
-                                                key={`runs.${index}.result.controller`}
-                                                name={`runs.${index}.result`}
+                                                key={`runs.${index}.victory.controller`}
+                                                name={`runs.${index}.victory`}
                                                 control={form.control}
                                                 render={({field, fieldState}) => (
-                                                    <Field data-invalid={fieldState.invalid} className="min-w-32 max-w-48">
+                                                    <Field data-invalid={fieldState.invalid} >
                                                         <Label>Resultado</Label>
                                                         <Select
                                                             name={field.name}
                                                             value={field.value?.toString()}
-                                                            onValueChange={val => {field.onChange(val), setFieldScore(index, Number(val), 'result')}}
+                                                            onValueChange={val => {field.onChange(val), setFieldScore(index, val, 'victory')}}
                                                         >
                                                             <SelectTrigger
-                                                                id={`runs.${index}.result`}
-                                                                key={`runs.${index}.result`}
+                                                                id={`runs.${index}.victory`}
+                                                                key={`runs.${index}.victory`}
                                                                 aria-invalid={fieldState.invalid}
                                                                 onBlur={field.onBlur}
                                                             ><SelectValue placeholder="Vitória"/></SelectTrigger>
                                                             <SelectContent>
                                                                 <SelectItem
                                                                     key={1}
-                                                                    value="1"
+                                                                    value="false"
                                                                 >Derrota</SelectItem>
                                                                 <SelectItem
                                                                     key={2}
-                                                                    value="2"
+                                                                    value="true"
                                                                 >Vitória</SelectItem>
                                                             </SelectContent>
                                                         </Select>
@@ -394,13 +390,14 @@ export default function SubmitRunsCard() {
                                                     </Field>
                                                 )}
                                             />
-                                            <div className="flex flex-col gap-3 w-full min-w-32 max-w-48">
+                                            <div className="flex flex-col gap-3 w-full">
                                                 <Label>Prontuação</Label>
                                                 <Label 
                                                     className="border-input aria-invalid:border-destructive border h-9 text-sm rounded-md px-3 py-2 text-center"
                                                 >{updateScore(index)}</Label>
                                             </div>
-                                            <div className="h-[76px] py-6.5">
+                                            {/* <div className="h-[76px] py-6.5"> */}
+                                            <div className='self-end'>
                                                 <Button
                                                     variant="outline"
                                                     size="icon"
@@ -415,9 +412,11 @@ export default function SubmitRunsCard() {
                         })}
                     </FieldGroup>
                 </form>
-                <Button
-                    onClick={() => append(formFields)}
-                >Adicionar</Button>
+                <div className='pt-6'>
+                    <Button
+                        onClick={() => append(formFields)}
+                    >Adicionar</Button>
+                </div>
             </CardContent>
             <CardFooter>
                 <div className="flex w-full justify-end">

@@ -142,7 +142,7 @@ export default function CharacterListings() {
     const setCharScore = (action:string|number, charId:number, inputValue:string|null=null) => {
         setCharJsonClone((prevState) => {
             const updatedCharJson = [...prevState]
-            let char = updatedCharJson.find(char => char.id === charId)
+            const char = updatedCharJson.find(char => char.id === charId)
             const charOriginal = charJson.find(char => char.id === charId)
 
             if (!char || !charOriginal) return prevState

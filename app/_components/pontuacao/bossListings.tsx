@@ -90,7 +90,7 @@ export default function BossListings() {
     const setBossScore = (action:string|number, bossId:number, inputValue:string|null=null) => {
         setBossJsonClone((prevState) => {
             const updatedBossJson = [...prevState]
-            let boss = updatedBossJson.find(boss => boss.id === bossId)
+            const boss = updatedBossJson.find(boss => boss.id === bossId)
             const bossOriginal = bossJson.find(boss => boss.id === bossId)
 
             if (!boss || !bossOriginal) return prevState
