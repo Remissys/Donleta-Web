@@ -15,7 +15,25 @@ import * as z from 'zod'
 import { Controller, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 
-export default function AddBoss() {
+type BossData = {
+    name: string
+    score: number
+    image: File
+}
+
+interface AddBossParams {
+    open: boolean
+    setOpen: (open: boolean) => void
+    onClose: () => void
+    onSubmit: (data: BossData) => void
+}
+
+export default function AddBoss({
+    open,
+    setOpen,
+    onClose,
+    onSubmit
+}: AddBossParams) {
     
     const [imagePreview, setImagePreview] = useState<string>('')
     const ACCEPTED_IMAGE_TYPES = ['image/png', 'image/jpg', 'image/jpeg', 'image/webp']
@@ -41,20 +59,25 @@ export default function AddBoss() {
         }
     })
 
-    function onAddCharacter(data: z.infer<typeof formSchema>) {
-        console.log(data)
+    const addBoss = async(data: BossData) => {
+        await onSubmit(data)
+
+        form.reset()
+        onClose()
     }
 
     return (
-        <Dialog>
-            <DialogTrigger className="bg-primary text-primary-foreground h-9 py-2 px-4 rounded-md font-medium hover:bg-primary/90">
-                Adicionar
+        <Dialog open={open} onOpenChange={setOpen}>
+            <DialogTrigger asChild>
+                <Button
+                    className="bg-primary text-primary-foreground h-9 py-2 px-4 rounded-md font-medium hover:bg-primary/90"
+                >Adicionar</Button>
             </DialogTrigger>
             <DialogContent className="p-[16px] max-w-[650px] w-[650px]">
                 <DialogTitle>Adicionar Boss</DialogTitle>
                 <div className="flex justify-between h-[250px]">
                     <div className="flex flex-col justify-between w-full pr-[20px]">
-                        <form id="add-character" onSubmit={form.handleSubmit(onAddCharacter)} onChange={() => console.log(form.watch)}>
+                        <form id="add-character" onSubmit={form.handleSubmit(addBoss)} onChange={() => console.log(form.watch)}>
                             <FieldGroup>
                                 <Controller
                                     name="name"
@@ -149,7 +172,7 @@ export default function AddBoss() {
                     <Button
                         type="submit"
                         form="add-character"
-                        onClick={() => console.log('adicionar')}
+                        // onClick={() => console.log('adicionar')}
                     >Adicionar</Button>
                 </DialogFooter>
             </DialogContent>
