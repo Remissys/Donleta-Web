@@ -3,11 +3,12 @@
 import React, { useState } from "react"
 
 import { Button } from "@/components/ui/button"
+import { Card } from "@/components/ui/card"
 import { Dialog, DialogTrigger, DialogContent, DialogFooter, DialogClose, DialogTitle } from "@/components/ui/dialog"
+import { elements } from "@/utils/characterUtils"
+import { Field, FieldGroup, FieldLabel, FieldError } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Card } from "@/components/ui/card"
-import { Field, FieldGroup, FieldLabel, FieldError } from "@/components/ui/field"
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select"
 
 import Image from "next/image"
@@ -16,40 +17,27 @@ import * as z from 'zod'
 import { Controller, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 
-export default function AddCharacter() {
+interface CharData {
+    name: string
+    element: number
+    score: number
+    image: File
+}
 
-    // temp    
-    const elements = [
-        { 
-            value: 1, 
-            label: "Pyro" 
-        },
-        { 
-            value: 2, 
-            label: "Hydro" 
-        },
-        { 
-            value: 3, 
-            label: "Anemo" 
-        },
-        { 
-            value: 4, 
-            label: "Electro" 
-        },
-        { 
-            value: 5, 
-            label: "Dendro" 
-        },
-        { 
-            value: 6, 
-            label: "Cryo" 
-        },
-        { 
-            value: 7, 
-            label: "Geo" 
-        }
-    ] as const
-    
+interface AddCharParams {
+    open: boolean
+    setOpen: (open: boolean) => void
+    onClose: () => void
+    onSubmit: (data: CharData) => void
+}
+
+export default function AddCharacter({
+    open,
+    setOpen,
+    onClose,
+    onSubmit
+}: AddCharParams) {
+
     const [imagePreview, setImagePreview] = useState<string>('')
     const ACCEPTED_IMAGE_TYPES = ['image/png', 'image/jpg', 'image/jpeg', 'image/webp']
     
@@ -81,12 +69,15 @@ export default function AddCharacter() {
         }
     })
 
-    function onAddCharacter(data: z.infer<typeof formSchema>) {
-        console.log(data)
+    const addChar = async(data: CharData) => {
+        await onSubmit(data)
+
+        form.reset()
+        onClose()
     }
 
     return (
-        <Dialog>
+        <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger className="bg-primary text-primary-foreground h-9 py-2 px-4 rounded-md font-medium hover:bg-primary/90">
                 Adicionar
             </DialogTrigger>
@@ -94,7 +85,7 @@ export default function AddCharacter() {
                 <DialogTitle>Adicionar Personagem</DialogTitle>
                 <div className="flex justify-between h-[300px]">
                     <div className="flex flex-col justify-between w-full pr-[20px]">
-                        <form id="add-character" onSubmit={form.handleSubmit(onAddCharacter)} onChange={() => console.log(form.watch)}>
+                        <form id="add-character" onSubmit={form.handleSubmit(addChar)}>
                             <FieldGroup>
                                 <Controller
                                     name="name"
@@ -220,7 +211,6 @@ export default function AddCharacter() {
                     <Button
                         type="submit"
                         form="add-character"
-                        onClick={() => console.log('adicionar')}
                     >Adicionar</Button>
                 </DialogFooter>
             </DialogContent>

@@ -3,11 +3,11 @@
 import React, { useState } from "react"
 
 import { Button } from "@/components/ui/button"
+import { Card } from "@/components/ui/card"
 import { Dialog, DialogTrigger, DialogContent, DialogFooter, DialogClose, DialogTitle } from "@/components/ui/dialog"
+import { Field, FieldGroup, FieldLabel, FieldError } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Card } from "@/components/ui/card"
-import { Field, FieldGroup, FieldLabel, FieldError } from "@/components/ui/field"
 
 import Image from "next/image"
 
@@ -77,7 +77,7 @@ export default function AddBoss({
                 <DialogTitle>Adicionar Boss</DialogTitle>
                 <div className="flex justify-between h-[250px]">
                     <div className="flex flex-col justify-between w-full pr-[20px]">
-                        <form id="add-character" onSubmit={form.handleSubmit(addBoss)} onChange={() => console.log(form.watch)}>
+                        <form id="add-character" onSubmit={form.handleSubmit(addBoss)}>
                             <FieldGroup>
                                 <Controller
                                     name="name"
@@ -172,7 +172,6 @@ export default function AddBoss({
                     <Button
                         type="submit"
                         form="add-character"
-                        // onClick={() => console.log('adicionar')}
                     >Adicionar</Button>
                 </DialogFooter>
             </DialogContent>
