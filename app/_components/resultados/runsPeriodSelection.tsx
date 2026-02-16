@@ -23,7 +23,8 @@ export default function RunPeriodSelector({
 
     const [editionOptions, setEditionOptions] = useState<string[]>([])
 
-    console.log(getValues('date'))
+    // console.log(getValues('date'))
+    console.log(fieldState)
     
     useEffect(() => {
         const edition = getEditionOptions()

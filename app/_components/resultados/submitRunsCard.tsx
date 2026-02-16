@@ -11,10 +11,188 @@ import { Button } from "@/components/ui/button";
 import { XIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import RunPeriodSelector from './runsPeriodSelection';
+import axios from 'axios';
+
+interface Scores {
+    character1: string
+    character2: string
+    boss: string
+    time: string
+    victory: string
+}
+
+interface Options {
+    value: string
+    label: string
+    score?: number
+}
+
+interface Participant {
+    _id: string
+    name: string
+}
+
+interface Char {
+    _id: string
+    name: string
+    element: number
+    score: number
+    image_key: string
+}
+
+interface Boss {
+    _id: string
+    name: string
+    score: number
+    image_key: string
+}
+
+interface Time {
+    _id: string
+    description: string
+    score: number
+}
 
 export default function SubmitRunsCard() {
+    const [ isLoading, setIsLoading ] = useState<boolean>(false)
+    const [ participantOptions, setParticipantOptions ] = useState<Options[]>([] as Options[])
+    const [ charOptions, setCharOptions ] = useState<Options[]>([] as Options[])
+    const [ bossOptions, setBossOptions ] = useState<Options[]>([] as Options[])
+    const [ timeOptions, setTimeOptions ] = useState<Options[]>([] as Options[])
+    const [ scores, setScores ] = useState<Map<string, Scores>>(new Map())
+
+    const victoryOptions: Options[] = [
+        { value: 'true', label: 'Vitória' },
+        { value: 'false', label: 'Derrota' }
+    ]
+
+    useEffect(() => {
+        fetchParticipants()
+        fetchCharacters()
+        fetchBosses()
+        fetchTimes()
+    }, [])
+
+    const fetchParticipants = async () => {
+        try {
+            setIsLoading(true)
+            
+            const response = await axios.get('/participants/', {
+                baseURL: process.env.NEXT_PUBLIC_DONLETA_URL
+            })
+
+            if (response.data.data) {
+                const data = response.data.data
+
+                const options: Options[] = data.map((participant: Participant) => ({
+                    value: participant._id,
+                    label: participant.name
+                }))
+
+                setParticipantOptions(options)
+            }
+        } catch(err) {
+            console.error(err)
+        } finally {
+            setIsLoading(false)
+        }
+    }
+
+    const fetchCharacters = async () => {
+        try {
+            setIsLoading(true)
+            
+            const response = await axios.get('/characters/', {
+                baseURL: process.env.NEXT_PUBLIC_DONLETA_URL
+            })
+
+            if (response.data.data) {
+                const data = response.data.data
+
+                const options: Options[] = data.map((char: Char) => ({
+                    value: char._id,
+                    label: char.name,
+                    score: char.score
+                }))
+
+                setCharOptions(options)
+            }
+        } catch(err) {
+            console.error(err)
+        } finally {
+            setIsLoading(false)
+        }
+    }
+
+    const fetchBosses = async () => {
+        try {
+            setIsLoading(true)
+            
+            const response = await axios.get('/bosses/', {
+                baseURL: process.env.NEXT_PUBLIC_DONLETA_URL
+            })
+
+            if (response.data.data) {
+                const data = response.data.data
+
+                const options: Options[] = data.map((boss: Boss) => ({
+                    value: boss._id,
+                    label: boss.name,
+                    score: boss.score
+                }))
+
+                setBossOptions(options)
+            }
+        } catch(err) {
+            console.error(err)
+        } finally {
+            setIsLoading(false)
+        }
+    }
+
+    const fetchTimes = async () => {
+        try {
+            setIsLoading(true)
+            
+            const response = await axios.get('/times/', {
+                baseURL: process.env.NEXT_PUBLIC_DONLETA_URL
+            })
+
+            if (response.data.data) {
+                const data = response.data.data
+
+                const options: Options[] = data.map((time: Time) => ({
+                    value: time._id,
+                    label: time.description,
+                    score: time.score
+                }))
+
+                setTimeOptions(options)
+            }
+        } catch(err) {
+            console.error(err)
+        } finally {
+            setIsLoading(false)
+        }
+    }
+
+    const onSubmitDailyRuns = async (data: z.infer<typeof formSchema>) => {
+        try {
+            setIsLoading(true)
+
+            const response = await axios.post('/runs/', data, {
+                baseURL: process.env.NEXT_PUBLIC_DONLETA_URL
+            })
+        } catch(err) {
+            console.error(err)
+        } finally {
+            setIsLoading(false)
+            form.resetField('runs')
+            setScores(new Map())
+        }
+    }
 
     const formFields = {
         'participant': undefined as unknown as string,
@@ -36,9 +214,9 @@ export default function SubmitRunsCard() {
     const formSchema = z.object({
         'date': z.
             object({
-                'edition': z.string(),
-                'week': z.string(),
-                'period': z.string(),
+                'edition': z.string('Valor inválido!'),
+                'week': z.string('Valor inválido!'),
+                'period': z.string('Valor inválido!'),
             }),
         'runs': z.
             array(
@@ -70,68 +248,42 @@ export default function SubmitRunsCard() {
         name: 'runs'
     })
 
-    function onSubmitDailyRuns(data: z.infer<typeof formSchema>) {
-        console.log(data)
-    }
-
-    const selectTest = [
-        {
-            value: '1',
-            label: 'Remi',
-            score: 'F'
-        },
-        {
-            value: '2',
-            label: 'Amber',
-            score: '3'
-        }
-    ]
-
-    interface Scores {
-        character1: string
-        character2: string
-        boss: string
-        time: string
-        victory: string
-    }
-
-    const [scores, setScores] = useState<Map<string, Scores>>(new Map())
-
-    const getOptionScore = useCallback((index:number, id:string, field:string) => {
+    const getOptionScore = (id:string, field:string) => {
         let fieldOptions = []
 
-        if (field === 'boss') fieldOptions = selectTest
-        else if (field === 'time') fieldOptions = selectTest
-        else fieldOptions = selectTest
+        if (field === 'boss') fieldOptions = bossOptions
+        else if (field === 'time') fieldOptions = timeOptions
+        else fieldOptions = charOptions
 
         const data = fieldOptions.find(option => option.value === id)
         if (!data) return null
         return data.score
-    }, [])
+    }
 
-    const setFieldScore = useCallback((index:number, id:string, field:string) => {
+    const setFieldScore = useCallback((index:number, id:string, field: 'character1' | 'character2' | 'boss' | 'time' | 'victory') => {
         let fieldOptions = []
 
-        if (field === 'boss') fieldOptions = selectTest
-        else if (field === 'time') fieldOptions = selectTest
-        else fieldOptions = selectTest
+        if (field === 'boss') fieldOptions = bossOptions
+        else if (field === 'time') fieldOptions = timeOptions
+        else if (field === 'victory') fieldOptions = victoryOptions
+        else fieldOptions = charOptions
 
         const data = fieldOptions.find(option => option.value === id)
 
-        if (!data) return null
+        if (!data && field) return null
 
         setScores(prevState => {
             const newState = new Map(prevState)
             const scoreValues = newState.get(`runs.${index}`)
-            const scoreObj: Scores = scoreValues ? {...scoreValues} : defaultScores
+            const scoreObj: Scores = scoreValues ? {...scoreValues} : {...defaultScores}
             
-            scoreObj[field as keyof Scores] = field === 'victory' ? id : data.score
+            scoreObj[field as keyof Scores] = field === 'victory' ? id : String(data?.score)
             newState.set(`runs.${index}`, scoreObj)
 
             return newState
         })
 
-        return data.score
+        return data?.score
     }, [])
 
     const updateScore = useCallback((index:number) => {
@@ -142,16 +294,18 @@ export default function SubmitRunsCard() {
         let score = 0
 
         for (const [key, value] of Object.entries(fieldScores)) {
-            if (key === 'victory' && value === '1') {
-                score = 0
-                break
-            }
-
-            if (!isNaN(Number(value))) {
-                score += Number(value)
+            if (key === 'victory') {
+                if (value === 'false') {
+                    score = 0
+                    break
+                }
             } else {
-                score = 0 
-                break
+                if (!isNaN(Number(value))) {
+                    score += Number(value)
+                } else {
+                    score = 0 
+                    break
+                }
             }
         }
 
@@ -201,11 +355,11 @@ export default function SubmitRunsCard() {
                                                                 onBlur={field.onBlur}
                                                             ><SelectValue placeholder="Remissys"/></SelectTrigger>
                                                             <SelectContent>
-                                                                {selectTest.map(username => (
+                                                                {participantOptions.map(participant => (
                                                                     <SelectItem
-                                                                        key={username.value} 
-                                                                        value={username.value.toString()}
-                                                                    >{username.label}</SelectItem>
+                                                                        key={participant.value} 
+                                                                        value={participant.value}
+                                                                    >{participant.label}</SelectItem>
                                                                 ))}
                                                             </SelectContent>
                                                         </Select>
@@ -233,11 +387,11 @@ export default function SubmitRunsCard() {
                                                             >
                                                                 <div className="flex w-full justify-between overflow-hidden gap-2">
                                                                     <span className="overflow-hidden"><SelectValue placeholder="Amber"/></span>
-                                                                    {field.value && <Badge className="h-5 w-5 tabular-nums">{getOptionScore(index, field.value, 'character1')}</Badge>}
+                                                                    {field.value && <Badge className="h-5 w-5 tabular-nums">{getOptionScore(field.value, 'character1')}</Badge>}
                                                                 </div>
                                                             </SelectTrigger>
                                                             <SelectContent>
-                                                                {selectTest.map(char => (
+                                                                {charOptions.map(char => (
                                                                     <SelectItem
                                                                         key={char.value} 
                                                                         value={char.value.toString()}
@@ -269,11 +423,11 @@ export default function SubmitRunsCard() {
                                                             >
                                                                 <div className="flex w-full justify-between overflow-hidden gap-2">
                                                                     <span className="overflow-hidden"><SelectValue placeholder="Sangonomia Kokomi"/></span>
-                                                                    {field.value && <Badge className="h-5 w-5 tabular-nums">{getOptionScore(index, field.value, 'character2')}</Badge>}
+                                                                    {field.value && <Badge className="h-5 w-5 tabular-nums">{getOptionScore(field.value, 'character2')}</Badge>}
                                                                 </div>
                                                             </SelectTrigger>
                                                             <SelectContent>
-                                                                {selectTest.map(char => (
+                                                                {charOptions.map(char => (
                                                                     <SelectItem
                                                                         key={char.value} 
                                                                         value={char.value.toString()}
@@ -305,11 +459,11 @@ export default function SubmitRunsCard() {
                                                             >
                                                                 <div className="flex w-full justify-between overflow-hidden gap-2">
                                                                     <span className="overflow-hidden"><SelectValue placeholder="Dragarto Primordial"/></span>
-                                                                    {field.value && <Badge className="h-5 w-5 tabular-nums">{getOptionScore(index, field.value, 'boss')}</Badge>}
+                                                                    {field.value && <Badge className="h-5 w-5 tabular-nums">{getOptionScore(field.value, 'boss')}</Badge>}
                                                                 </div>
                                                             </SelectTrigger>
                                                             <SelectContent>
-                                                                {selectTest.map(boss => (
+                                                                {bossOptions.map(boss => (
                                                                     <SelectItem
                                                                         key={boss.value} 
                                                                         value={boss.value.toString()}
@@ -341,11 +495,11 @@ export default function SubmitRunsCard() {
                                                             >
                                                                 <div className="flex w-full justify-between overflow-hidden gap-2">
                                                                     <span className="overflow-hidden"><SelectValue placeholder="Entre 0:00 e 2:00"/></span>
-                                                                    {field.value && <Badge className="h-5 w-5 tabular-nums">{getOptionScore(index, field.value, 'time')}</Badge>}
+                                                                    {field.value && <Badge className="h-5 w-5 tabular-nums">{getOptionScore(field.value, 'time')}</Badge>}
                                                                 </div>
                                                             </SelectTrigger>
                                                             <SelectContent>
-                                                                {selectTest.map(time => (
+                                                                {timeOptions.map(time => (
                                                                     <SelectItem
                                                                         key={time.value}
                                                                         value={time.value.toString()}
@@ -376,14 +530,12 @@ export default function SubmitRunsCard() {
                                                                 onBlur={field.onBlur}
                                                             ><SelectValue placeholder="Vitória"/></SelectTrigger>
                                                             <SelectContent>
-                                                                <SelectItem
-                                                                    key={1}
-                                                                    value="false"
-                                                                >Derrota</SelectItem>
-                                                                <SelectItem
-                                                                    key={2}
-                                                                    value="true"
-                                                                >Vitória</SelectItem>
+                                                                {victoryOptions.map(time => (
+                                                                    <SelectItem
+                                                                        key={time.value}
+                                                                        value={time.value.toString()}
+                                                                    >{time.label}</SelectItem>
+                                                                ))}
                                                             </SelectContent>
                                                         </Select>
                                                         {fieldState.invalid && <FieldError errors={[fieldState.error]}/>}
@@ -396,7 +548,6 @@ export default function SubmitRunsCard() {
                                                     className="border-input aria-invalid:border-destructive border h-9 text-sm rounded-md px-3 py-2 text-center"
                                                 >{updateScore(index)}</Label>
                                             </div>
-                                            {/* <div className="h-[76px] py-6.5"> */}
                                             <div className='self-end'>
                                                 <Button
                                                     variant="outline"
