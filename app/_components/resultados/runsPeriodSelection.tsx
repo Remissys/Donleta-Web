@@ -7,24 +7,39 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Select, SelectContent, SelectTrigger, SelectItem, SelectValue } from "@/components/ui/select"
 import { ChevronDownIcon } from "lucide-react"
 import React, { useEffect, useState } from "react"
-import { ControllerRenderProps, UseFormGetValues, UseFormSetValue } from "react-hook-form"
+import { ControllerRenderProps, ControllerFieldState } from "react-hook-form"
+
+interface DateField {
+  edition: string
+  week: string
+  period: string
+}
+
+interface Run {
+  participant: string
+  character1: string
+  character2: string
+  boss: string
+  time: string
+  victory: string
+}
+
+export interface RunFormValues {
+  date: DateField
+  runs: Run[]
+}
 
 interface RunPeriodSelectorProps {
-  field: ControllerRenderProps<any, "date">
-  fieldState: any
-  getValues: UseFormGetValues<any>
+  field: ControllerRenderProps<RunFormValues, "date">
+  fieldState: ControllerFieldState
 }
 
 export default function RunPeriodSelector({
     field,
     fieldState,
-    getValues
 }: RunPeriodSelectorProps) {
 
     const [editionOptions, setEditionOptions] = useState<string[]>([])
-
-    // console.log(getValues('date'))
-    console.log(fieldState)
     
     useEffect(() => {
         const edition = getEditionOptions()
@@ -109,7 +124,7 @@ export default function RunPeriodSelector({
 
     return (
         <div className="grid 2xl:grid-cols-8 md:grid-cols-4 sm:grid-cols-3 gap-5 pb-20">
-            <Field data-invalid={fieldState.invalid?.edition}>
+            <Field data-invalid={fieldState.invalid}>
                 <Select
                     name="edition"
                     value={field.value?.edition ?? ""}
@@ -121,7 +136,7 @@ export default function RunPeriodSelector({
                     )}
                 >
                     <SelectTrigger
-                        aria-invalid={fieldState.invalid?.edition}
+                        aria-invalid={fieldState.invalid}
                     ><SelectValue placeholder="Edição"/></SelectTrigger>
                     <SelectContent>
                         {editionOptions.map(option => (
@@ -133,7 +148,7 @@ export default function RunPeriodSelector({
                     </SelectContent>
                 </Select>
             </Field>
-            <Field data-invalid={fieldState.invalid?.week}>
+            <Field data-invalid={fieldState.invalid}>
                 <Select
                     name="week"
                     value={field.value?.week ?? ""}
@@ -145,7 +160,7 @@ export default function RunPeriodSelector({
                     )}
                 >
                     <SelectTrigger
-                        aria-invalid={fieldState.invalid?.week}
+                        aria-invalid={fieldState.invalid}
                     ><SelectValue placeholder="Semana"/></SelectTrigger>
                     <SelectContent>
                         {['1', '2', '3', '4'].map(option => (
@@ -157,11 +172,11 @@ export default function RunPeriodSelector({
                     </SelectContent>
                 </Select>
             </Field>
-            <Field data-invalid={fieldState.invalid?.period}>
+            <Field data-invalid={fieldState.invalid}>
                 <Popover>
                     <PopoverTrigger
                         asChild
-                        aria-invalid={fieldState.invalid?.period}
+                        aria-invalid={fieldState.invalid}
                     >
                         <Button
                             variant="ghost"

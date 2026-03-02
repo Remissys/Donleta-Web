@@ -140,7 +140,7 @@ export default function LatestRuns() {
                             {dailyResults.map((run: DailyResults) => {
                                 console.log(run)
                                 return (
-                                    <div className="py-4">
+                                    <div key={run.participant._id} className="py-4">
                                         <p className="py-4">{run.participant.name}</p>
                                         <p>{`TIME: ${run.characters[0].name} (${run.characters[0].score}) | ${run.characters[1].name} (${run.characters[1].score})`}</p>
                                         <p>{`BOSS: ${run.boss.name} (${run.boss.score})`}</p>
@@ -159,7 +159,7 @@ export default function LatestRuns() {
                             <div className="text-center">
                                 {weeklyResults.map((value: WeeklyResults) => {
                                     return (
-                                        <p className={`text-base py-1`}>{`${value.participant.name} - ${value.scores.join("; ")}`}</p>
+                                        <p key={value.participant._id} className={`text-base py-1`}>{`${value.participant.name} - ${value.scores.join("; ")}`}</p>
                                     )
                                 })}
                             </div>

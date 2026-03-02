@@ -326,7 +326,6 @@ export default function SubmitRunsCard() {
                             <RunPeriodSelector
                                 field={field}
                                 fieldState={fieldState}
-                                getValues={form.getValues}
                             />
                         )}
                     />
