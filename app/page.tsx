@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import LatestRuns from "./_components/resultados/latestRuns";
+import LatestRuns from "./_components/latestRuns";
 
 export default function Home() {
   return (

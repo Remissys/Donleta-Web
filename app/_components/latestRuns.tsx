@@ -116,7 +116,7 @@ export default function LatestRuns() {
             })
 
             if (response.data.data) {
-                setMonthlyResults(response.data.data)
+                setMonthlyResults(response.data.data.rankings)
             }
         } catch(err) {
             console.error(err)
@@ -136,7 +136,7 @@ export default function LatestRuns() {
                         <CardHeader>
                             <CardTitle className="text-2xl">Resultados Diários</CardTitle>
                         </CardHeader>
-                        <CardContent className="flex flex-col gap-4">
+                        <CardContent className="flex flex-col gap-4 px-12">
                             {dailyResults.map((run: DailyResults) => {
                                 console.log(run)
                                 return (
